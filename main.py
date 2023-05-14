@@ -1,3 +1,7 @@
+import json
+
+Data = json.load(open("data.json"))
+
 class Game:
     def __init__(self, Playerlist, Rules):
         self.Playerlist = Playerlist #List of Players (Player[])
@@ -24,7 +28,7 @@ class Pokemon:
         self.xp = 0 #The XP of the Pokémon (int)
         self.Attack = Attacks #The Attacks of the Pokémon (Attack[])
         self.LevelEvolve = LevelEvolve #The level until evolution of the Pokémon (int[])
-        self.maxHP = HP #The maximum HP of the Pokémon (int)
+        self.maxHP = HP.copy() #The maximum HP of the Pokémon (int)
         #TEMPORARY VALUES
         self.xpUpgrade = [10, 15, 20, 25, 30, 35]
 
@@ -116,18 +120,17 @@ class Pokedex:
         self.Pokelist.append(pokemon)
 
 class Item:
-    def __init__(self, name, price, description): #Init
-        self.name = name #Item's name (str)
-        self.price = price #Item's Price (int)
-        self.description = description #The Item's description (str)
+    def __init__(self, ID): #Init
+        self.ID = ID #Item's ID (str) (stored in Data.json)
+        self.Data = Data
 
     #All Accessors
     def getName(self):
-        return self.name
+        return self.Data[self.ID]["name"]
     def getPrice(self):
-        return self.price
+        return self.Data[self.ID]["price"]
     def getDescription(self):
-        return self.description
+        return self.Data[self.ID]["description"]
 
     #Methods
     def __str__(self): #Gives the description of the item
@@ -144,6 +147,8 @@ class Player:
         self.lvl = lvl #Base Lvl 0 (int)
         self.xp = xp #Base XP 0 (int)
         self.money = money #Base Money 100 bucks (int)
+        self.EquippedPokemon = poketeam[1] #The Pokémon that is equipped by the player (Pokémon) Default is Team[0]
+        self.Data = Data #The Data of All the items etc...
         #TEMPORARY VALUES
         self.xpUpgrade = [10, 15, 20, 25, 30, 35, 40, 50, 60] #The xp that is needed to level up the player for each level the player has (int[])
 
@@ -184,13 +189,30 @@ class Player:
         return 1
     def addItem(self, item): #Adds an item to the player's inventory'
         self.inventory.append(item)
-
+    def removeItem(self, item): #Removes an item from the player's inventory'
+        self.inventory.remove(item)
+    def useItem(self, itemID):
+        if itemID in [self.inventory[i[0]].ID for i in enumerate(self.inventory)]: #If the item is in the inventory
+            if Data[itemID] == "Heal25": #Checks if the item is Heal25
+                if self.equippedPokemon.maxHP - self.equippedPokemon.HP >= 25:
+                    self.equippedPokemon.addHP(25)
+                    return 1
+            elif Data[itemID] == "Heal50":
+                if self.equippedPokemon.maxHP - self.equippedPokemon.HP >= 50:
+                    self.equippedPokemon.addHP(50)
+                    return 1
+            elif Data[itemID] == "Heal100":
+                if self.equippedPokemon.maxHP - self.equippedPokemon.HP >= 100:
+                    self.equippedPokemon.addHP(100)
+                    return 1
+            """MORE TO BE ADDED"""
     def __str__(self): #Gives the description of the player
         return f"Name : {self.name}, ID : {self.id}, Lvl : {self.lvl}, XP : {self.xp}, Money : {self.money}, Inventory : {[self.inventory[i[0]].name for i in enumerate(self.inventory)]}, Pokelist : {[self.pokelist[i[0]].name for i in enumerate(self.pokelist)]}, Pokedex : {[self.pokedex.Pokelist[i[0]].name for i in enumerate(self.pokedex.Pokelist)]}, Poketeam : {[self.poketeam[i[0]].name for i in enumerate(self.poketeam)]}"
 
 class Shop:
     def __init__(self, Itemlist): #Init
         self.Itemlist = Itemlist #All the items that are in the shop (Item[])
+        self.Data = Data #The Data of all the items etc...
 
     #All Accessors
     def getItemlist(self):
@@ -198,6 +220,6 @@ class Shop:
 
     #Methods
     def buyItem(self, item, player): #Buy an item from the shop
-        if item in self.Itemlist and player.money - item.price: #If the item is in the shop and the player has enough money
-            player.money -= item.price #Removes the money from the player
+        if item in self.Itemlist and player.money - self.Data[item.ID]["price"]: #If the item is in the shop and the player has enough money
+            player.money -= self.Data[item.ID]["price"] #Removes the money from the player
             player.addItem(item) #Gives the item to the player

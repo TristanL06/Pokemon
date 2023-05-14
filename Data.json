@@ -1,0 +1,17 @@
+{
+  "Heal25" : {
+    "name" : "Heal25",
+    "price" : 50,
+    "Description" : "A Healing Potion that heals 25HP of your pokemon"
+  },
+  "Heal50" : {
+    "name" : "Heal50",
+    "price" : 100,
+    "Description" : "A Healing Potion that heals 50HP of your pokemon"
+  },
+  "Heal100" : {
+    "name" : "Heal100",
+    "price" : 200,
+    "Description" : "A Healing Potion that heals 100HP of your pokemon"
+  }
+}
